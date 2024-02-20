@@ -3,10 +3,21 @@
 
 #include <jpeglib.h>
 
+#include "File.h"
+
+namespace DC = JPEGDeinterlacer::Core;
+
 int deinterlace(const char* inputPath, const char* outputPath) {
-    FILE* inputFile = fopen(inputPath, "rb");
-    if (inputFile == nullptr) {
-        std::cerr << "Error opening input file: " << inputPath << std::endl;
+    
+    //TODO in nect commits
+    //ImageProcessor().RegisterCommandsByDefault().ProcessWithCommand( "Deinterlacer", inputPath, outputPath );
+    
+    DC::File inputFile(inputPath, "rb");
+    DC::File outputFile(outputPath, "wb");
+    
+    if (!inputFile.isValid() || !outputFile.isValid())
+    {
+        std::cerr << "Exit with code: " << EXIT_FAILURE << "because filde does not exist." << std::endl;
         return (EXIT_FAILURE);
     }
 
@@ -15,7 +26,7 @@ int deinterlace(const char* inputPath, const char* outputPath) {
 
     inputCompresingInfo.err = jpeg_std_error(&errorManager);
     jpeg_create_decompress(&inputCompresingInfo);
-    jpeg_stdio_src(&inputCompresingInfo, inputFile);
+    jpeg_stdio_src(&inputCompresingInfo, inputFile.GetRaw());
     
     if( jpeg_read_header(&inputCompresingInfo, TRUE) != 1)
     {
@@ -33,14 +44,7 @@ int deinterlace(const char* inputPath, const char* outputPath) {
     outputCompresingInfo.err = jpeg_std_error(&errorManager);
     jpeg_create_compress(&outputCompresingInfo);
 
-    FILE* outputFile = fopen(outputPath, "wb");
-    if (outputFile == nullptr) {
-        std::cerr << "Error opening output file: " << outputPath << std::endl;
-        jpeg_destroy_decompress(&inputCompresingInfo);
-        return (EXIT_FAILURE);
-    }
-
-    jpeg_stdio_dest(&outputCompresingInfo, outputFile);
+    jpeg_stdio_dest(&outputCompresingInfo, outputFile.GetRaw());
 
     outputCompresingInfo.image_width = inputCompresingInfo.image_width;
     outputCompresingInfo.image_height = inputCompresingInfo.image_height;
@@ -76,13 +80,12 @@ int deinterlace(const char* inputPath, const char* outputPath) {
     jpeg_finish_compress(&outputCompresingInfo);
     jpeg_destroy_compress(&outputCompresingInfo);
     jpeg_finish_decompress(&inputCompresingInfo);
-    fclose(inputFile);
-    fclose(outputFile);
     
     return 0;
 }
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[])
+{
     if (argc != 3) {
         std::cerr << "Please, use with arguments: " << argv[0] << " <input_path> <output_path>" << std::endl;
         return 1;

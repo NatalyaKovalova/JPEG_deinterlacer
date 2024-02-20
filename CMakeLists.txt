@@ -1,11 +1,15 @@
 cmake_minimum_required(VERSION 3.10)
+
 project(JPEGDeinterlacer)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+
+add_executable(JPEGDeinterlacer main.cpp Core/File.cpp)
+target_include_directories(JPEGDeinterlacer PRIVATE Core)
+
 find_package(JPEG REQUIRED)
+target_include_directories(JPEGDeinterlacer PRIVATE ${JPEG_INCLUDE_DIR})
+target_link_libraries(JPEGDeinterlacer PRIVATE ${JPEG_LIBRARIES})
 
-set(SOURCES main.cpp)
-
-include_directories(${JPEG_INCLUDE_DIR})
-
-add_executable(your_executable_name ${SOURCES})
-target_link_libraries(your_executable_name ${JPEG_LIBRARY})
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
