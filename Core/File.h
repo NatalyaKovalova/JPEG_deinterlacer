@@ -23,8 +23,8 @@ private:
     //Disabled
     File(File&) = delete;
     File(File&&) = delete;
-    File& operator=(const File& other) = delete;
-    File& operator=(File&& other) = delete;
+    File& operator=(const File&) = delete;
+    File& operator=(File&&) = delete;
 };
 }
-#endif //#define File_60E71F68_C04B_46A1_8037_DD765E6CB510
+#endif // File_60E71F68_C04B_46A1_8037_DD765E6CB510
